@@ -12,12 +12,15 @@ from core.utils.blacklist import BLACKLIST
 app = Flask(__name__)
 jwt = JWTManager(app)
 
+port = 8080
+host = '0.0.0.0'
 
 def initialize_app(app):
     app.config['RESTPLUS_VALIDATE'] = True
     app.config['ERROR_404_HELP'] = False
     app.config['JWT_SECRET_KEY'] = 'DontTellAnyone'
     app.config['JWT_BLACKLIST_ENABLED'] = True
+    app.config['SERVER_NAME'] = "{}:{}".format(host, port)
 
     blueprint = Blueprint('api', __name__)
     api.init_app(blueprint)
@@ -42,7 +45,7 @@ def token_invalidate():
 def main():
     initialize_app(app)
     log.info('>>>>> Starting development server at http://{}/ <<<<<'.format(app.config['SERVER_NAME']))
-    app.run(debug=True)
+    app.run(debug=True, port=port, host=host)
 
 
 if __name__ == '__main__':

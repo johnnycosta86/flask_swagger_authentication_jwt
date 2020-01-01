@@ -3,15 +3,20 @@ from flask_jwt_extended import create_access_token, get_raw_jwt, jwt_required
 from core.model.user_model import UserModel
 from core.utils.blacklist import BLACKLIST
 from core.utils.restplus import api
-from flask_restplus import Resource, reqparse
+from flask_restplus import Resource, reqparse, fields
 
 authentication = api.namespace('authentication', description='Manage authentication session')
 
 list_of_tasks = {}
 
 attributes = reqparse.RequestParser()
-attributes.add_argument('login', type=str, required=True, help="The field 'login' cannot be left blank.")
-attributes.add_argument('password', type=str, required=True, help="The field 'password' cannot be left blank.")
+attributes.add_argument('login', type=str, default='admin', required=True,  help="The field 'login' cannot be left blank.")
+attributes.add_argument('password', type=str, default='admin', required=True, help="The field 'password' cannot be left blank.")
+
+model = {
+    'login': fields.String(default='admin'),
+    'password': fields.String(default='admin')
+}
 
 
 @authentication.route("/login")
@@ -34,7 +39,7 @@ class AuthenticationLogin(Resource):
         if user_found and safe_str_cmp(user_found.password, data['password']):
             if user_found.active:
                 token = create_access_token(identity=user_found.user_id)
-                return {'access_token': token}, 200
+                return {'access_token': 'Bearer {}'.format(token)}, 200
             return {'message': 'User not confirmed.'}, 400
         return {'message': 'The username or password is incorrect.'}, 401  # Unauthorized
 
